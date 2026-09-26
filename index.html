@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- ============================================================
+       Drum Kit Game
+       Play drum sounds by clicking/tapping a pad or pressing the
+       matching keyboard key (A S D F G H J K L).
+       ============================================================ -->
+  <meta charset="UTF-8" />
+  <!-- viewport meta tag = essential for proper scaling on mobile -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="A simple, responsive drum kit you can play with your mouse, finger, or keyboard." />
+  <meta name="theme-color" content="#12002b" />
+  <title>Drum Kit 🥁</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="header">
+    <h1 class="title">Drum <span>Kit</span></h1>
+    <p class="subtitle">
+      <span class="hint-desktop">Press the keys on your keyboard</span>
+      <span class="hint-touch">Tap the pads</span>
+      to play
+    </p>
+  </header>
+
+  <main>
+    <!--
+      Each pad is a <button> so it is focusable and accessible by default.
+        data-key   → the keyboard key that triggers it (lower-case)
+        data-sound → the file name (without extension) in /sounds
+        --pad-color → per-pad accent colour consumed by style.css
+    -->
+    <section class="pads" aria-label="Drum pads">
+      <button class="pad" data-key="a" data-sound="clap"    style="--pad-color:#ff3cac"><kbd>A</kbd><span class="sound">Clap</span></button>
+      <button class="pad" data-key="s" data-sound="hihat"   style="--pad-color:#ffb86c"><kbd>S</kbd><span class="sound">Hi-Hat</span></button>
+      <button class="pad" data-key="d" data-sound="kick"    style="--pad-color:#f1fa8c"><kbd>D</kbd><span class="sound">Kick</span></button>
+      <button class="pad" data-key="f" data-sound="openhat" style="--pad-color:#50fa7b"><kbd>F</kbd><span class="sound">Open Hat</span></button>
+      <button class="pad" data-key="g" data-sound="boom"    style="--pad-color:#2bd2ff"><kbd>G</kbd><span class="sound">Boom</span></button>
+      <button class="pad" data-key="h" data-sound="ride"    style="--pad-color:#8be9fd"><kbd>H</kbd><span class="sound">Ride</span></button>
+      <button class="pad" data-key="j" data-sound="snare"   style="--pad-color:#bd93f9"><kbd>J</kbd><span class="sound">Snare</span></button>
+      <button class="pad" data-key="k" data-sound="tom"     style="--pad-color:#ff79c6"><kbd>K</kbd><span class="sound">Tom</span></button>
+      <button class="pad" data-key="l" data-sound="tink"    style="--pad-color:#ff5555"><kbd>L</kbd><span class="sound">Tink</span></button>
+    </section>
+
+    <!-- Simple controls: master volume + hit counter -->
+    <section class="controls">
+      <label class="volume">
+        <span>Volume</span>
+        <input type="range" id="volume" min="0" max="1" step="0.01" value="0.8" aria-label="Master volume" />
+      </label>
+      <p class="counter">Hits: <strong id="hit-count">0</strong></p>
+    </section>
+
+    <!-- Screen readers announce the last played sound -->
+    <p id="announcer" class="visually-hidden" aria-live="polite"></p>
+  </main>
+
+  <footer class="footer">
+    All sounds are original, synthesized samples released under
+    <a href="sounds/LICENSE.md">CC0 (public domain)</a>.
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
