@@ -1,0 +1,286 @@
+/* ==============================================================
+   Drum Kit — Stylesheet
+   Layout: mobile-first CSS grid that grows from 3 columns (phones)
+   to 5 columns (desktop). Each pad gets its accent colour from the
+   inline custom property --pad-color set in index.html.
+   ============================================================== */
+
+/* ---------- 1. Design tokens ---------- */
+:root {
+  --bg-1: #12002b;
+  --bg-2: #2a0845;
+  --text: #f8f8f2;
+  --muted: #b9b3cf;
+  --pad-bg: rgba(255, 255, 255, 0.06);
+  --pad-border: rgba(255, 255, 255, 0.14);
+  --radius: 18px;
+  --gap: clamp(0.6rem, 2vw, 1.25rem);
+  font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+}
+
+/* ---------- 2. Base / reset ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh; /* accounts for mobile browser toolbars */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1rem, 4vh, 2.5rem);
+  padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom));
+  color: var(--text);
+  background:
+    radial-gradient(circle at 20% 10%, rgba(255, 60, 172, 0.25), transparent 45%),
+    radial-gradient(circle at 80% 90%, rgba(43, 210, 255, 0.22), transparent 45%),
+    linear-gradient(160deg, var(--bg-1), var(--bg-2));
+  background-attachment: fixed;
+  /* Stop double-tap zoom & text selection while drumming on phones */
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+main {
+  width: 100%;
+  /* Also cap by viewport height so both rows fit on landscape phones */
+  max-width: min(960px, 125vh);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap);
+}
+
+/* ---------- 3. Header ---------- */
+.header {
+  text-align: center;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(2.4rem, 8vw, 4.5rem);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.title span {
+  background: linear-gradient(90deg, #ff3cac, #784ba0, #2b86c5);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.subtitle {
+  margin: 0.4rem 0 0;
+  color: var(--muted);
+  font-size: clamp(0.95rem, 2.5vw, 1.15rem);
+}
+
+/* Show the relevant hint depending on the input device.
+   (hover: none) matches touch-only devices such as phones. */
+.hint-touch { display: none; }
+@media (hover: none) {
+  .hint-desktop { display: none; }
+  .hint-touch { display: inline; }
+}
+
+/* ---------- 4. Pads layout ----------
+   Flexbox with wrapping + centering, so an incomplete last row
+   (e.g. 9 pads in 5 columns) stays nicely centred. */
+.pads {
+  --cols: 3; /* phones: 3 × 3 grid */
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--gap);
+}
+
+/* Tablets & desktops: 5 pads per row (5 + 4 centred) */
+@media (min-width: 720px) {
+  .pads {
+    --cols: 5;
+  }
+}
+
+/* ---------- 5. Individual pad ---------- */
+.pad {
+  /* Reset native button look */
+  appearance: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+
+  position: relative;
+  /* Width = (row width - gaps between pads) / number of columns */
+  flex: 0 0 calc((100% - (var(--cols) - 1) * var(--gap)) / var(--cols));
+  aspect-ratio: 1 / 1; /* always square */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border-radius: var(--radius);
+  border: 2px solid var(--pad-border);
+  background: var(--pad-bg);
+  backdrop-filter: blur(6px);
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.35),
+    inset 0 0 0 0 var(--pad-color);
+  transition:
+    transform 0.07s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+  overflow: hidden;
+}
+
+/* Coloured bar at the bottom of each pad */
+.pad::after {
+  content: "";
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: 10%;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--pad-color);
+  opacity: 0.7;
+}
+
+.pad kbd {
+  font-family: inherit;
+  font-size: clamp(1.6rem, 6vw, 2.8rem);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--pad-color);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--pad-color) 60%, transparent);
+}
+
+.pad .sound {
+  font-size: clamp(0.65rem, 2.2vw, 0.9rem);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+}
+
+/* Hover only on devices that really hover (prevents "sticky" hover on touch) */
+@media (hover: hover) {
+  .pad:hover {
+    border-color: var(--pad-color);
+  }
+}
+
+/* Keyboard focus ring for accessibility */
+.pad:focus-visible {
+  outline: 3px solid var(--pad-color);
+  outline-offset: 3px;
+}
+
+/* ---------- 6. "Playing" animation ----------
+   JS adds .playing for a moment whenever a pad is triggered. */
+.pad.playing {
+  transform: scale(0.94);
+  border-color: var(--pad-color);
+  background-color: color-mix(in srgb, var(--pad-color) 22%, transparent);
+  box-shadow:
+    0 0 28px var(--pad-color),
+    inset 0 0 22px color-mix(in srgb, var(--pad-color) 45%, transparent);
+}
+
+/* Expanding ripple, injected by JS on each hit */
+.ripple {
+  position: absolute;
+  width: 20%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--pad-color);
+  opacity: 0.55;
+  transform: translate(-50%, -50%) scale(0);
+  pointer-events: none;
+  animation: ripple 0.5s ease-out forwards;
+}
+
+@keyframes ripple {
+  to {
+    transform: translate(-50%, -50%) scale(9);
+    opacity: 0;
+  }
+}
+
+/* ---------- 7. Controls ---------- */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem 2rem;
+  color: var(--muted);
+}
+
+.volume {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.volume input {
+  width: min(55vw, 200px);
+  accent-color: #ff3cac;
+  cursor: pointer;
+}
+
+.counter {
+  margin: 0;
+}
+
+.counter strong {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 8. Footer ---------- */
+.footer {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.footer a {
+  color: #8be9fd;
+}
+
+/* ---------- 9. Utilities ---------- */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Respect users who prefer less motion */
+@media (prefers-reduced-motion: reduce) {
+  .pad,
+  .pad.playing {
+    transition: none;
+    transform: none;
+  }
+  .ripple {
+    display: none;
+  }
+}
