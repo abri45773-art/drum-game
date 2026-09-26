@@ -140,7 +140,24 @@
     // Keyboard hits have no coordinates → ripple from the centre.
     ripple.style.left = (x ?? pad.clientWidth / 2) + "px";
     ripple.style.top = (y ?? pad.clientHeight / 2) + "px";
-    ripple.addEventListener("animationend", () => ripple.remove());
+    // Remove the ripple when its CSS animation ends — but ALSO on a timer
+    // fallback. When `prefers-reduced-motion: reduce` is active the
+    // stylesheet sets `.ripple { display: none }`, which stops the
+    // animation from ever running, so `animationend` never fires and every
+    // hit would otherwise leak a <span> into the DOM forever. The fallback
+    // timer guarantees the node is cleaned up either way.
+    let rippleRemoved = false;
+    let rippleFallbackTimer;
+    const removeRipple = () => {
+      if (rippleRemoved) return;
+      rippleRemoved = true;
+      clearTimeout(rippleFallbackTimer);
+      ripple.remove();
+    };
+    ripple.addEventListener("animationend", removeRipple);
+    // 500ms matches the `.ripple` animation duration in style.css; the
+    // extra FLASH_MS gives it margin so we never cut a live animation short.
+    rippleFallbackTimer = setTimeout(removeRipple, 500 + FLASH_MS);
     pad.appendChild(ripple);
   }
 
@@ -175,7 +192,16 @@
     pad.addEventListener("pointerdown", (event) => {
       event.preventDefault(); // avoid focus flicker / text selection
       const rect = pad.getBoundingClientRect();
-      hitPad(pad, event.clientX - rect.left, event.clientY - rect.top);
+      // getBoundingClientRect() is measured from the pad's *border box*,
+      // but the ripple's left/top are positioned relative to the *padding
+      // box*. Subtract the border width (clientLeft/clientTop) so the
+      // ripple originates exactly under the pointer instead of being offset
+      // by the 2px border.
+      hitPad(
+        pad,
+        event.clientX - rect.left - pad.clientLeft,
+        event.clientY - rect.top - pad.clientTop
+      );
     });
 
     // Keyboard users who Tab to a pad and press Enter/Space trigger a
